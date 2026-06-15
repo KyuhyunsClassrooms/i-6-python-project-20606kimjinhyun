@@ -1,101 +1,143 @@
-# AI 활용 자유 주제 파이썬 미니 프로젝트
-# 이름 또는 학번: 
-# 프로젝트 주제: 
+pets = []
 
-# ============================================================
-# 사용 안내
-# ------------------------------------------------------------
-# 이 파일은 예시 골격입니다.
-# 그대로 제출하지 말고, 반드시 자신의 주제에 맞게 수정하세요.
-#
-# 필수 조건
-# 1. 2차원 리스트 사용
-# 2. 함수 2개 이상, 가능하면 3개 이상 분리
-# 3. 조건문 사용
-# 4. 반복문 사용
-# 5. 실행 결과 출력
-# ============================================================
+count = int(input("진단할 동물 수를 입력하세요: "))
+
+for i in range(count):
+    print("\n", i + 1, "번째 동물 정보 입력")
+
+    name = input("동물 이름: ")
+    animal_type = input("동물 종류: ")
+    temp = float(input("체온: "))
+    symptom = input("증상을 문장으로 입력하세요: ")
+
+    pets.append([name, animal_type, temp, symptom])
 
 
-# ------------------------------------------------------------
-# 1. 데이터 준비: 2차원 리스트
-# ------------------------------------------------------------
-# 아래 예시는 "활동 추천 프로그램"입니다.
-# 자신의 주제에 맞게 data를 만드세요.
-#
-# 현재 열의 의미:
-# 0번 열: 활동 이름
-# 1번 열: 필요한 시간(분)
-# 2번 열: 추천 기분
-# 3번 열: 활동 유형
-# ------------------------------------------------------------
-
-activities = [
-    ["산책하기", 30, "피곤", "운동"],
-    ["짧은 낮잠", 20, "피곤", "휴식"],
-    ["좋아하는 음악 듣기", 10, "우울", "휴식"],
-    ["문제집 3쪽 풀기", 40, "차분", "공부"],
-    ["방 정리하기", 25, "답답", "생활"],
-    ["친구에게 연락하기", 15, "우울", "소통"],
+# 증상 리스트 [증상, 위험 점수]
+symptom_keywords = [
+    ["구토", 2],
+    ["설사", 2],
+    ["기침", 1],
+    ["재채기", 1],
+    ["무기력", 2],
+    ["식욕부진", 2],
+    ["호흡곤란", 3],
+    ["떨림", 2],
+    ["경련", 4],
+    ["탈수", 3],
+    ["혈변", 4],
+    ["혈뇨", 4],
+    ["걷기 어려움", 3],
+    ["숨을 헐떡임", 2]
 ]
 
 
-# ------------------------------------------------------------
-# 2. 함수 정의
-# ------------------------------------------------------------
+# 체온 판정 함수
+def check_temperature(animal, temp):
 
-def show_intro():
-    """프로그램 제목과 안내를 출력한다."""
-    print("=" * 40)
-    print("AI 활용 자유 주제 파이썬 미니 프로젝트")
-    print("예시: 기분과 시간에 따른 활동 추천기")
-    print("=" * 40)
+    if animal == "강아지" or animal == "개":
+        normal_min = 37.5
+        normal_max = 39.2
 
+    elif animal == "고양이":
+        normal_min = 38.0
+        normal_max = 39.5
 
-def get_user_input():
-    """사용자에게 기분과 남은 시간을 입력받는다."""
-    mood = input("현재 기분을 입력하세요. 예: 피곤, 우울, 차분, 답답: ")
-    minutes = int(input("사용 가능한 시간을 분 단위로 입력하세요: "))
-    return mood, minutes
-
-
-def find_recommendations(data, mood, minutes):
-    """2차원 리스트를 반복하며 조건에 맞는 활동을 찾는다."""
-    results = []
-
-    for row in data:
-        name = row[0]
-        required_minutes = row[1]
-        recommended_mood = row[2]
-        activity_type = row[3]
-
-        # 조건문: 사용자의 기분과 시간이 활동 조건에 맞는지 판단한다.
-        if recommended_mood == mood and required_minutes <= minutes:
-            results.append([name, required_minutes, activity_type])
-
-    return results
-
-
-def print_result(results):
-    """추천 결과를 출력한다."""
-    print("\n[추천 결과]")
-
-    if len(results) == 0:
-        print("조건에 맞는 활동이 없습니다.")
-        print("시간을 늘리거나 다른 기분을 입력해 보세요.")
     else:
-        for item in results:
-            print(f"- {item[0]} / {item[1]}분 / 유형: {item[2]}")
+        normal_min = 38.5
+        normal_max = 40.0
+
+    if temp < normal_min:
+        return "저체온", 2
+
+    elif temp > normal_max:
+        return "고체온", 2
+
+    else:
+        return "정상", 0
 
 
-def main():
-    show_intro()
-    mood, minutes = get_user_input()
-    results = find_recommendations(activities, mood, minutes)
-    print_result(results)
+# 증상 분석 함수
+def analyze_symptom(text):
+
+    score = 0
+    found = []
+
+    for symptom in symptom_keywords:
+
+        if symptom[0] in text:
+            found.append(symptom[0])
+            score += symptom[1]
+
+    return found, score
 
 
-# ------------------------------------------------------------
-# 3. 프로그램 실행
-# ------------------------------------------------------------
-main()
+# 건강 판정 함수
+def judge_health(score):
+
+    if score >= 6:
+        return "위험"
+
+    elif score >= 3:
+        return "주의 필요"
+
+    else:
+        return "양호"
+
+
+# 추천 행동 함수
+def recommend_action(result, level):
+
+    if level == "위험":
+
+        if result == "고체온":
+            return "물을 공급하고 활동을 줄인 후 즉시 병원을 방문하세요."
+
+        elif result == "저체온":
+            return "담요 등으로 체온을 유지하고 즉시 병원을 방문하세요."
+
+        else:
+            return "증상이 심하므로 즉시 병원을 방문하세요."
+
+    elif level == "주의 필요":
+        return "충분히 쉬게 하고 상태를 계속 관찰하세요."
+
+    else:
+        return "현재 상태를 유지하며 꾸준히 관찰하세요."
+
+
+# ===== 진단서 출력 =====
+for pet in pets:
+
+    temp_result, temp_score = check_temperature(
+        pet[1],
+        pet[2]
+    )
+
+    found_symptoms, symptom_score = analyze_symptom(
+        pet[3]
+    )
+
+    total_score = temp_score + symptom_score
+
+    health = judge_health(total_score)
+
+    advice = recommend_action(
+        temp_result,
+        health
+    )
+
+    print("\n===== 동물 건강 진단서 =====")
+    print("동물 이름:", pet[0])
+    print("동물 종류:", pet[1])
+    print("체온:", pet[2])
+    print("체온 상태:", temp_result)
+
+    if len(found_symptoms) > 0:
+        print("감지된 증상:", ", ".join(found_symptoms))
+    else:
+        print("감지된 증상: 없음")
+
+    print("위험 점수:", total_score)
+    print("최종 판정:", health)
+    print("추천 행동:", advice)
